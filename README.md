@@ -8,6 +8,7 @@ BoardGameGeek.com integrated slack bot
 
 
 Interaction commands : 
+
 0. help :: show usage
 1. hi :: respond to sender with gif
 3. fetch <game> :: fetch bgg summary of game
