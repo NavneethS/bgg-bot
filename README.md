@@ -6,7 +6,6 @@ BoardGameGeek.com integrated slack bot
 3. Query support for leaderboard. Stats, etc.
 4. Fetch game details from BGG. Rank, summary, etc.
 
-
 Interaction commands : 
 
 0. help :: show usage
@@ -15,3 +14,12 @@ Interaction commands :
 4. leaderboard :: 
 5. logs <game> ::
 6. quiz :: 
+7. roll a dice ::
+
+Taskboard : 
+
+1. Add linter
+2. Structure the app
+~~3. Implement hi~~
+4. Bug: post to correct channel
+5. Implement game lookup
