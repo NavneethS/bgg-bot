@@ -22,7 +22,16 @@ def respond_to_greeting(user, channel):
     return r.status_code
 
 def fetch_game(game, user, channel):
-    pass
+    game_fields = search(game)
+    response_text = "\n🏆 {}\n\n🎲 {}\n\n⚖️ {}\n\n👨‍👩‍👧‍👦 {}-{}\n\n⌛ {}\n\n⚙️ {}\n\n📝 {}\n\n".format(game_fields['Rank'], game_fields['Name'], game_fields['Weight'], game_fields['Min Players'], game_fields['Max Players'], game_fields['Play Time'], ', '.join(game_fields['Mechanics']), ', '.join(game_fields['Categories']))
+    r = requests.post(
+        url="https://slack.com/api/chat.postMessage", 
+        json={'text':response_text, 'channel': channel}, 
+        headers={"Authorization": "Bearer {}".format(token)}
+    )
+
+    return r.status_code
+
 
 @app.route('/', methods=['POST'])
 def endpoint():
