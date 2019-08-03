@@ -3,6 +3,8 @@ from secrets import slack_access_token as token
 import requests
 import random
 
+from bgg import search
+
 app = Flask(__name__)
 
 def contains_word(s, w):
@@ -20,7 +22,6 @@ def respond_to_greeting(user, channel):
     return r.status_code
 
 def fetch_game(game, user, channel):
-    ## User BGG search API, filter and send results    
     pass
 
 @app.route('/', methods=['POST'])
