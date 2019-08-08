@@ -7,6 +7,9 @@ from xml.etree import ElementTree
 # display search results count
 # thumbnail image
 # bgg link
+# player count distribution
+
+BASE_URL = 'https://boardgamegeek.com'
 
 def geeksearch(text):
     """
@@ -38,6 +41,7 @@ def geeksearch(text):
             gamecell = row.find('td', 'collection_objectname')
             game = gamecell.find('a', href=True)
             title = game.text
+            link = game['href']
             gameid = game['href'].split('/')[2]
 
             ratingcells = row.find_all('td', 'collection_bggrating')
@@ -47,6 +51,7 @@ def geeksearch(text):
         
             results.append({'rank': rank,
                     'title': title,
+                    'link': link,
                     'gameid': gameid,
                     'geekrating': geekrating,
                     'avgrating': avgrating,
@@ -90,6 +95,8 @@ def fetch_bgg(game):
     assert root.get('id') == str(game)
 
     fields['Name'] = root.find('name').get('value')
+    fields['Image'] = root.find('thumbnail').text
+    fields['Year'] = root.find('yearpublished').get('value')
     fields['Min Players'] = root.find('minplayers').get('value')
     fields['Max Players'] = root.find('maxplayers').get('value')
     fields['Play Time'] = root.find('playingtime').get('value')
@@ -133,6 +140,7 @@ def search(text):
     try:
         top_hit = results[0]['gameid']
         game_fields = get_gamedata(top_hit)
+        game_fields['Link'] = 'https://boardgamegeek.com' + results[0]['link']
     except IndexError:
         return {'Error': 'Game not found'}
     return game_fields
