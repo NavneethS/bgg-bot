@@ -21,9 +21,9 @@ Taskboard :
 1. Add linter
 2. Structure the app
 ~~3. Implement hi~~
-4. Bug: post to correct channel
+~~4. Bug: post to correct channel~~
 ~~5. Implement game lookup~~
 ~~6. Geeksearch~~
-7. Implement fetch <game> command
-8. Implement die roll
+~~7. Implement fetch <game> command~~
+~~8. Implement die roll~~
 9. Unit tests
