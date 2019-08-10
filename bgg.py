@@ -23,7 +23,7 @@ def geeksearch(text):
     text = urllib.parse.quote_plus(text.lower().strip())
     results = []
 
-    url = "https://boardgamegeek.com/geeksearch.php?action=search&objecttype=boardgame&q={}&B1=Go".format(text)
+    url = BASE_URL + "/geeksearch.php?action=search&objecttype=boardgame&q={}&B1=Go".format(text)
 
     print('Making geeksearch request')
     r = requests.get(url)
@@ -83,7 +83,7 @@ def fetch_bgg(game):
     fields = {}
 
     print("Fetching data for game {}".format(game))
-    url = """https://www.boardgamegeek.com/xmlapi2/thing?id={}
+    url = BASE_URL + """xmlapi2/thing?id={}
             &versions=1
             &videos=1
             &stats=1
