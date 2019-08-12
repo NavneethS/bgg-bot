@@ -1,6 +1,6 @@
 import requests
 import string
-import collections
+import operator
 
 from xml.etree import ElementTree
 
@@ -17,8 +17,20 @@ BASE_URL = 'https://boardgamegeek.com'
 # Gardens of Babylon
 
 
-def get_stats(player, all_scores):
-    pass
+def make_stats(player, all_scores, player_count):
+
+    ranks = {}
+    for i in range(1, player_count+1):
+        ranks[i] = []
+
+    for game in all_scores:
+        scores = game[3]
+        if len(scores) == player_count and player in scores:
+            rank = scores.index(player) + 1
+            ranks[rank].append(game[1])
+    
+    return ranks
+
 
 def parse_comments(text):
     """
@@ -38,7 +50,10 @@ def parse_comments(text):
         except ValueError:
             continue
 
-    return dict(collections.OrderedDict(scores))
+    scores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)
+    order = [score[0] for score in scores]
+    
+    return tuple(order)
 
 def fetch_plays(user="s_nav"):
     """
@@ -69,13 +84,19 @@ def fetch_plays(user="s_nav"):
                 text = ""
 
             scores = parse_comments(text)
-            player_count = len(scores.keys() & players) 
+            player_count = len(set(scores).intersection(players))
 
-            if player_count >= 2 and len(scores.keys()) == player_count:
-                print(date, game, game_id, scores)
-                all_scores.append(date, game, game_id, scores)
+            if player_count >= 2 and len(scores) == player_count:
+                #print(date, game, game_id, scores)
+                all_scores.append((date, game, game_id, scores))
     
     return all_scores
 
 all_scores = fetch_plays()
 print(len(all_scores))
+
+
+for player in players:
+    ranks = make_stats(player, all_scores, 4)
+    print(player, dict((k,len(v)) for k,v in ranks.items()))
+
