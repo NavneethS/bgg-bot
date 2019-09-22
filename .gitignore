@@ -3,3 +3,5 @@ __pycache__/
 bot-env
 zappa_settings.json
 .vscode
+config
+credentials
