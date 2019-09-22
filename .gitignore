@@ -1,2 +1,5 @@
 secrets.py
 __pycache__/
+bot-env
+zappa_settings.json
+.vscode
