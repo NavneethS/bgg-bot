@@ -5,8 +5,6 @@ from xml.etree import ElementTree
 
 # TODO
 # display search results count
-# thumbnail image
-# bgg link
 # player count distribution
 
 BASE_URL = "https://boardgamegeek.com"
@@ -33,7 +31,7 @@ def geeksearch(text):
     r = requests.get(url)
     pagehtml = r.text
 
-    parsed = BeautifulSoup(pagehtml, "html5lib")
+    parsed = BeautifulSoup(pagehtml, "html.parser")
     table = parsed.find("table", {"class": "collection_table"})
 
     rows = table.find_all("tr")
@@ -93,7 +91,7 @@ def fetch_bgg(game):
     print("Fetching data for game {}".format(game))
     url = (
         BASE_URL
-        + """xmlapi2/thing?id={}
+        + """/xmlapi2/thing?id={}
             &versions=1
             &videos=1
             &stats=1
