@@ -53,17 +53,19 @@ def fetch_game(game, user, channel):
         response_text = "No board game found"
         return post_message(response_text, channel)
 
-    response_text = "\n\n🏅 {}\n\n🎲 {} ({})\n\n⚖️ {} 👨‍👩‍👧‍👦 {}-{} ⌛ {} minutes\n\n⚙️ {}\n\n📝 {}\n\n".format(
-        game_fields["Rank"],
-        game_fields["Name"],
-        game_fields["Year"],
-        game_fields["Weight"],
-        game_fields["Min Players"],
-        game_fields["Max Players"],
-        game_fields["Play Time"],
+    response_text = """\n\n
+        🏅 Rank {}, Rating {} ({} ratings) \n\n
+        🎲 {} ({})\n\n
+        ⚖️ {} 👨‍👩‍👧‍👦 {}-{} ⌛ {} minutes\n\n
+        ⚙️ {}\n\n
+        📝 {}\n\n""".format(
+        game_fields["Rank"], game_fields["Avg Rating"], game_fields["Num Ratings"],
+        game_fields["Name"], game_fields["Year"],
+        game_fields["Weight"], game_fields["Min Players"], game_fields["Max Players"], game_fields["Play Time"],
         ", ".join(game_fields["Mechanics"]),
         ", ".join(game_fields["Categories"]),
     )
+    
     r = requests.post(
         url="https://slack.com/api/chat.postMessage",
         json={

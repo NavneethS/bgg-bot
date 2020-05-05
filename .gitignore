@@ -5,3 +5,5 @@ zappa_settings.json
 .vscode
 config
 credentials
+*.csv
+*.ipynb

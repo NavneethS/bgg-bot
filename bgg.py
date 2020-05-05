@@ -1,5 +1,8 @@
+import time
 import requests
 import urllib
+import pandas as pd
+from tqdm import tqdm
 from bs4 import BeautifulSoup
 from xml.etree import ElementTree
 
@@ -16,8 +19,7 @@ def geeksearch(text):
     Parameters:
         - text: str. Query string
     Returns:
-        - results: list(dict). List of games with rank, title, gameid, geekrating, avgrating, numvoters 
-
+        - pagehtml: str. html content of page to be parsed 
     """
     text = urllib.parse.quote_plus(text.lower().strip())
     results = []
@@ -26,11 +28,37 @@ def geeksearch(text):
         BASE_URL
         + "/geeksearch.php?action=search&objecttype=boardgame&q={}&B1=Go".format(text)
     )
-
     print("Making geeksearch request")
     r = requests.get(url)
     pagehtml = r.text
+    return pagehtml
 
+def topsearch(page, ranktype='strategy'):
+    """
+    Returns the 100 (one page) results on the bgg ranking page
+    Parameters:
+        - page: int. page number
+        - ranktype: str. strategy game rank, or all game rank
+    Returns:
+        - pagehtml: str. html content of page to be parsed. 100 games per page
+    """
+    if ranktype == 'strategy':
+        url = BASE_URL + "/strategygames/browse/boardgame/page/{}".format(page)
+    else:
+        url = BASE_URL + "/browse/boardgame/page/{}".format(page)
+    r = requests.get(url)
+    pagehtml = r.text
+    return pagehtml
+
+def getgames(pagehtml):
+    """
+    Scrape basic fields from BGG html page
+    Parameters:
+        - pagehtml: str. html content extracted from BGG. Result of topsearch() or geeksearch()
+    Returns:
+        - results: list(dict). List of games with rank, title, gameid, geekrating, avgrating, numvoters 
+    """
+    results = []
     parsed = BeautifulSoup(pagehtml, "html.parser")
     table = parsed.find("table", {"class": "collection_table"})
 
@@ -47,9 +75,9 @@ def geeksearch(text):
             gameid = game["href"].split("/")[2]
 
             ratingcells = row.find_all("td", "collection_bggrating")
-            geekrating = ratingcells[0].text.strip()
-            avgrating = ratingcells[1].text.strip()
-            numvoters = ratingcells[2].text.strip()
+            geekrating = float(ratingcells[0].text.strip())
+            avgrating = float(ratingcells[1].text.strip())
+            numvoters = int(ratingcells[2].text.strip())
 
             results.append(
                 {
@@ -73,7 +101,7 @@ def fetch_bgg(game):
     Parameters:
         - game: str. A BGG game id
     Returns:
-        - fields. dict. Spec:
+        - fields. dict
             - Name
             - Min Players
             - Max Players
@@ -149,14 +177,58 @@ def get_gamedata(game):
 
 
 def search(text):
-    results = geeksearch(text)
+    pagehtml = geeksearch(text)
+    results = getgames(pagehtml)
     try:
         top_hit = results[0]["gameid"]
         game_fields = get_gamedata(top_hit)
-        game_fields["Link"] = "https://boardgamegeek.com" + results[0]["link"]
+        game_fields["Link"] = BASE_URL + results[0]["link"]
     except IndexError:
         return {"Error": "Game not found"}
     return game_fields
 
 
 # print(search('Mombas'))
+
+def filtergames(df, threshold):
+    
+    return df[df['geekrating'] >= threshold]
+
+def research():
+    threshold = 6.517
+    run_id = "runx"
+    new = []
+
+    done = False
+    page = 1
+    while not done:
+        pageresults = getgames(topsearch(page))
+        new.extend(pageresults)
+        if pageresults[-1]['geekrating']<threshold:
+            break
+        page += 1
+       
+    print('{} pages added'.format(page))
+    
+    new_df = pd.DataFrame(new)
+    new_df = new_df.set_index('gameid')
+    new_df = filtergames(new_df, threshold)
+    
+    expanded_new = []
+    for gid, game in new_df.iterrows():
+        try:
+            game_fields = get_gamedata(gid)
+            game_fields["Link"] = BASE_URL + game["link"]
+            game_fields["Geek Rating"] = game['geekrating']
+            game_fields["GameId"] = gid
+            expanded_new.append(game_fields)
+        except Exception as e:
+            print(e)
+            print('EXC', gid)
+        time.sleep(2)
+
+    expanded_new_df = pd.DataFrame(expanded_new)
+    expanded_new_df = expanded_new_df.set_index('GameId')
+
+    expanded_new_df.to_csv('research.csv')
+    return

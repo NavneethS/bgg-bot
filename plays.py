@@ -50,6 +50,7 @@ def parse_comments(text):
         except ValueError:
             continue
 
+    print('Raw', scores)
     scores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)
     order = [score[0] for score in scores]
 
@@ -84,6 +85,7 @@ def fetch_plays(user="s_nav"):
                 text = ""
 
             scores = parse_comments(text)
+            print('Scores', scores)
             player_count = len(set(scores).intersection(players))
 
             if player_count >= 2 and len(scores) == player_count:
@@ -97,6 +99,6 @@ all_scores = fetch_plays()
 print(len(all_scores))
 
 
-for player in players:
-    ranks = make_stats(player, all_scores, 4)
-    print(player, dict((k, len(v)) for k, v in ranks.items()))
+#for player in players:
+#    ranks = make_stats(player, all_scores, 4)
+#    print(player, dict((k, len(v)) for k, v in ranks.items()))
